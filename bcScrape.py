@@ -1,15 +1,17 @@
 from lxml import html
 import requests
+import json
 
-outData = 'var dataSet = ['
+outData = []
 
 with open ('./bcURLList.txt','r') as urlFile:
 	lineNum=1
 	for line in urlFile:
+		entry = dict()
 		#Add a comma after the previous data point if
 		#we are not dealing with the first line
-		if lineNum != 1:
-			outData+=','
+		#if lineNum != 1:
+		#	outData+=','
 		lineNum += 1
 		#Get the raw HTML of the album's website
 		albumURL = line.rstrip()
@@ -34,11 +36,15 @@ with open ('./bcURLList.txt','r') as urlFile:
 
 		#Finally, build the addition for the ChipChart Array Element
 		albumArtOut = "<a href='" + albumURL + "'><img title='" + title + "' src='" + albumArtLink + "'></a>"
+		
+		entry["albumArt"] = albumArtOut
+		entry["artist"] = artist
+		entry["releaseDate" = releaseDate
+		#newDataLine = "['"+albumArtOut+"','"+artist+"','"+releaseDate+"']"
+		outData.append(entry)
 
-		newDataLine = "['"+albumArtOut+"','"+artist+"','"+releaseDate+"']"
-		outData+=newDataLine
-outData+=']'
+print json.dumps(outData)
 #Save and overwrite the previous .js array object
-with open('./chartList.js','w') as outFile:
-	outFile.write(outData)
+#with open('./chartList.js','w') as outFile:
+#	outFile.write(outData)
 
