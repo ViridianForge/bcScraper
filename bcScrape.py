@@ -39,12 +39,12 @@ with open ('./bcURLList.txt','r') as urlFile:
 		
 		entry["albumArt"] = albumArtOut
 		entry["artist"] = artist
-		entry["releaseDate" = releaseDate
+		entry["releaseDate"] = releaseDate
 		#newDataLine = "['"+albumArtOut+"','"+artist+"','"+releaseDate+"']"
 		outData.append(entry)
 
-print json.dumps(outData)
+#print json.dumps(outData)
 #Save and overwrite the previous .js array object
-#with open('./chartList.js','w') as outFile:
-#	outFile.write(outData)
+with open('./chartList.json','w') as outFile:
+	json.dump(outData, outFile)
 
