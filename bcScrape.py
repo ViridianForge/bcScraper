@@ -7,7 +7,7 @@ outData = []
 with open ('./bcURLList.txt','r') as urlFile:
 	lineNum=1
 	for line in urlFile:
-		entry = dict()
+		entry = []
 		#Add a comma after the previous data point if
 		#we are not dealing with the first line
 		#if lineNum != 1:
@@ -37,14 +37,16 @@ with open ('./bcURLList.txt','r') as urlFile:
 		#Finally, build the addition for the ChipChart Array Element
 		albumArtOut = "<a href='" + albumURL + "'><img title='" + title + "' src='" + albumArtLink + "'></a>"
 		
-		entry["albumArt"] = albumArtOut
-		entry["artist"] = artist
-		entry["releaseDate"] = releaseDate
-		#newDataLine = "['"+albumArtOut+"','"+artist+"','"+releaseDate+"']"
+		entry.append(albumArtOut)
+		entry.append(artist)
+		entry.append(releaseDate)
 		outData.append(entry)
 
-#print json.dumps(outData)
+#Put together the final dictionary to play nicely with the formatting DataTables is expecting
+outJSON = dict();
+outJSON["chartData"] = outData
+
 #Save and overwrite the previous .js array object
 with open('./chartList.json','w') as outFile:
-	json.dump(outData, outFile)
+	json.dump(outJSON, outFile)
 
