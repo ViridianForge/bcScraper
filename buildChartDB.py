@@ -1,18 +1,48 @@
+"""Chipchart Database Construction Script
+
+This script converts lists of album data, or URLs pointing at album data into a JSON database that
+is utilized by the ChipChart album chart list system.  The formatting of the JSON produced by this 
+script is geared to the format required by Datatables' AJAX database population methods.
+
+JSON format pulled from:  http://www.datatables.net/examples/ajax/custom_data_property.html
+"""
 from lxml import html
 import requests
 import json
+import sys
 
+usageString = "Usage: buildChartDB.py <outputfile> <inputfile_1> ... <inputfile_n>"
+
+#Storage for dump to json
 outData = []
 
-with open ('./bcURLList.txt','r') as urlFile:
-	lineNum=1
+#The list of files to utilize in building the output json
+inputFiles = []
+
+#Test to make sure we've got enough arguments
+if len(sys.argv) < 3:
+	print "Not enough arguments."
+	print usageString
+	return
+
+#The location to print the json built from the input data sources
+try:
+	outputFile = sys.argv[1]
+except IndexError:
+	print "No Output File Specified."
+	print usageString
+	return
+
+#Functionality to add -- get output file and all input files from the command line
+for arg in sys.argv[2:]:
+	#Yeah, this is bad design VF.  Its a stem to eventually expand into identification of our
+	#different database sources to farm out to the appropriate methods.
+	inputFiles.append(arg)
+
+#Begin opening the input files.  For now, just the first file.
+with open (inputFiles[0],'r') as urlFile:
 	for line in urlFile:
 		entry = []
-		#Add a comma after the previous data point if
-		#we are not dealing with the first line
-		#if lineNum != 1:
-		#	outData+=','
-		lineNum += 1
 		#Get the raw HTML of the album's website
 		albumURL = line.rstrip()
 		print "Querying " + albumURL
