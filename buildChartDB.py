@@ -11,8 +11,12 @@ import requests
 import json
 import sys
 import urllib
+import os
 
 usageString = "Usage: buildChartDB.py <inputdir> <outputdir>"
+
+#The final output file being prepared
+outData = []
 
 #The list of files to utilize in building the output json
 inputFiles = []
@@ -24,26 +28,26 @@ if len(sys.argv) != 3:
 	exit(0)
 
 #Check that input path is a directory
-if !(os.path.isdir(sys.argv[1]):
+if (os.path.isdir(sys.argv[1]) != 1):
 	print "Argument for Database Source Location must be a directory."
 	print usageString
 	exit(0)
 
 #Check that output path is a directory
-if !(os.path.isdir(sys.argv[2])):
+if (os.path.isdir(sys.argv[2]) != 1):
 	print "Argument for Database Compilation Location must be a directory."
 	print usageString
 	exit(0)
 
 #Functionality to add -- get output file and all input files from the command line
-for file in os.listdir(sys.argv[2]):
+for file in os.listdir(sys.argv[1]):
 	#Yeah, this is bad design VF.  Its a stem to eventually expand into identification of our
 	#different database sources to farm out to the appropriate methods.
 	print file
 	inputFiles.append(file)
 
 #Begin opening the input files.  For now, just the first file.
-with open (inputFiles[0],'r') as urlFile:
+with open (sys.argv[1] + inputFiles[0],'r') as urlFile:
 	for line in urlFile:
 		entry = []
 		#Get the raw HTML of the album's website
@@ -65,7 +69,9 @@ with open (inputFiles[0],'r') as urlFile:
 			
 			#Useful bit of functionality.  Check to see if image already exists in our database.  If
 			#not, download image.
-			
+			fnStart = albumArtLink.rfind("\\")
+			print albumArtLink[:fnStart]
+			urllib.urlretrieve(albumArtLink, sys.argv[1] + albumArtLink[:fnStart])
 
 			#Split up the full description into title, artist, and release date
 			descPortions = fullDesc.split(",")
@@ -90,5 +96,5 @@ outJSON = dict();
 outJSON["chartData"] = outData
 
 #Save and overwrite the previous .js array object
-with open(sys.argv[1] + '/chartList.json','w') as outFile:
+with open(sys.argv[2] + '/chartList.json','w') as outFile:
 	json.dump(outJSON, outFile)
