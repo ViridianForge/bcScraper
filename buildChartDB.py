@@ -23,7 +23,7 @@ inputFiles = []
 if len(sys.argv) < 3:
 	print "Not enough arguments."
 	print usageString
-	return
+	exit(0)
 
 #The location to print the json built from the input data sources
 try:
@@ -31,7 +31,7 @@ try:
 except IndexError:
 	print "No Output File Specified."
 	print usageString
-	return
+	exit(0)
 
 #Functionality to add -- get output file and all input files from the command line
 for arg in sys.argv[2:]:
@@ -59,6 +59,9 @@ with open (inputFiles[0],'r') as urlFile:
 			fullDesc = descElem.get("content").splitlines()[1]
 			#A thought here would be to download the image, and save it to a images folder in the Chipchart.
 			albumArtLink = albumArtElem.get("href")
+			
+			#Useful bit of functionality.  Check to see if image already exists in our database.  If
+			#not, download image.
 
 			#Split up the full description into title, artist, and release date
 			descPortions = fullDesc.split(",")
