@@ -10,34 +10,37 @@ from lxml import html
 import requests
 import json
 import sys
+import urllib
 
-usageString = "Usage: buildChartDB.py <outputfile> <inputfile_1> ... <inputfile_n>"
-
-#Storage for dump to json
-outData = []
+usageString = "Usage: buildChartDB.py <inputdir> <outputdir>"
 
 #The list of files to utilize in building the output json
 inputFiles = []
 
 #Test to make sure we've got enough arguments
-if len(sys.argv) < 3:
-	print "Not enough arguments."
+if len(sys.argv) != 3:
+	print "Incorrect Number of Arguments."
 	print usageString
 	exit(0)
 
-#The location to print the json built from the input data sources
-try:
-	outputFile = sys.argv[1]
-except IndexError:
-	print "No Output File Specified."
+#Check that input path is a directory
+if !(os.path.isdir(sys.argv[1]):
+	print "Argument for Database Source Location must be a directory."
+	print usageString
+	exit(0)
+
+#Check that output path is a directory
+if !(os.path.isdir(sys.argv[2])):
+	print "Argument for Database Compilation Location must be a directory."
 	print usageString
 	exit(0)
 
 #Functionality to add -- get output file and all input files from the command line
-for arg in sys.argv[2:]:
+for file in os.listdir(sys.argv[2]):
 	#Yeah, this is bad design VF.  Its a stem to eventually expand into identification of our
 	#different database sources to farm out to the appropriate methods.
-	inputFiles.append(arg)
+	print file
+	inputFiles.append(file)
 
 #Begin opening the input files.  For now, just the first file.
 with open (inputFiles[0],'r') as urlFile:
@@ -62,6 +65,7 @@ with open (inputFiles[0],'r') as urlFile:
 			
 			#Useful bit of functionality.  Check to see if image already exists in our database.  If
 			#not, download image.
+			
 
 			#Split up the full description into title, artist, and release date
 			descPortions = fullDesc.split(",")
@@ -86,5 +90,5 @@ outJSON = dict();
 outJSON["chartData"] = outData
 
 #Save and overwrite the previous .js array object
-with open('./chartList.json','w') as outFile:
+with open(sys.argv[1] + '/chartList.json','w') as outFile:
 	json.dump(outJSON, outFile)
