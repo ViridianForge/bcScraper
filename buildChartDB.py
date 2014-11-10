@@ -4,6 +4,10 @@ This script converts lists of album data, or URLs pointing at album data into a 
 is utilized by the ChipChart album chart list system.  The formatting of the JSON produced by this 
 script is geared to the format required by Datatables' AJAX database population methods.
 
+Usage:
+When running the script, all it needs is to be passed the directory that will house the album art
+jpegs, and the database files to build the json from.
+
 JSON format pulled from:  http://www.datatables.net/examples/ajax/custom_data_property.html
 """
 from lxml import html
@@ -13,7 +17,7 @@ import sys
 import urllib
 import os
 
-usageString = "Usage: buildChartDB.py <inputdir> <outputdir>"
+usageString = "Usage: buildChartDB.py <directory containing data>"
 
 #The final output file being prepared
 outData = []
@@ -22,38 +26,41 @@ outData = []
 inputFiles = []
 
 #Test to make sure we've got enough arguments
-if len(sys.argv) != 4:
+if len(sys.argv) != 2:
 	print "Incorrect Number of Arguments."
 	print usageString
 	exit(0)
 
-#Check that input path is a directory
+#Check that top level directory passed exists
 if (os.path.isdir(sys.argv[1]) != 1):
-	print "Argument for Database Source Location must be a directory."
+	print "Argument for Top Level must be a directory."
 	print usageString
 	exit(0)
 
-#Check that output path is a directory
-if (os.path.isdir(sys.argv[2]) != 1):
-	print "Argument for Database Compilation Location must be a directory."
+#Check that Database directory exists.  Gotta have databases to have data.
+if (os.path.isdir(sys.argv[1] + os.sep + "Database") != 1):
+	print "Databases directory must exist."
 	print usageString
 	exit(0)
 	
-#Check that albumArt output path is directory
-if (os.path.isdir(sys.argv[3] != 1):
-	print "Argument for Album Art Directory must be a directory."
+#Check that albumArt output directory exists, create it if it
+#does not.
+if (os.path.isdir(sys.argv[1] + os.sep + "images" + os.sep + "AlbumArt") != 1):
+	print "Album Art Directory must exist."
 	print usageString
 	exit(0)
 
 #Functionality to add -- get output file and all input files from the command line
-for file in os.listdir(sys.argv[1]):
+for file in os.listdir(sys.argv[1] + os.sep + "Database"):
 	#Yeah, this is bad design VF.  Its a stem to eventually expand into identification of our
 	#different database sources to farm out to the appropriate methods.
 	print file
-	inputFiles.append(file)
+	if(file.endswith(".json") != 1):
+		print "Found non-final database"
+		inputFiles.append(file)
 
 #Begin opening the input files.  For now, just the first file.
-with open (sys.argv[1] + os.sep + inputFiles[0],'r') as urlFile:
+with open (sys.argv[1] + os.sep + "Database" + os.sep + inputFiles[0],'r') as urlFile:
 	for line in urlFile:
 		entry = []
 		#Get the raw HTML of the album's website
@@ -77,12 +84,14 @@ with open (sys.argv[1] + os.sep + inputFiles[0],'r') as urlFile:
 			#not, download image.
 			
 			#Choose the filename based on Bandcamp's own filename system.
-			fnStart = albumArtLink.rfind("\/")
+			fnStart = albumArtLink.rfind("/")
+			print fnStart
 			print albumArtLink[fnStart+1:]
-			albumArtFileName = "albumArt" + os.sep + albumArtLink[fnStart+1:]
-			if (os.path.isfile(sys.argv[3] + albumArtFileName) != 1):
+			albumArtFileName = os.sep + "images" + os.sep + "AlbumArt" + os.sep + albumArtLink[fnStart+1:]
+			if (os.path.isfile(sys.argv[1] + albumArtFileName) != 1):
 				print "Didn't find the file, better save it."
-				urllib.urlretrieve(albumArtLink, sys.argv[3] + albumArtFileName)
+				print sys.argv[1] + albumArtFileName
+				urllib.urlretrieve(albumArtLink, sys.argv[1] + albumArtFileName)
 
 			#Split up the full description into title, artist, and release date
 			descPortions = fullDesc.split(",")
@@ -107,5 +116,5 @@ outJSON = dict();
 outJSON["chartData"] = outData
 
 #Save and overwrite the previous .js array object
-with open(sys.argv[2] + '/chartList.json','w') as outFile:
+with open(sys.argv[1] +os.sep + "Database" + os.sep + "chartList.json",'w') as outFile:
 	json.dump(outJSON, outFile)
