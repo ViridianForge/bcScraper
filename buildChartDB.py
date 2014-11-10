@@ -22,7 +22,7 @@ outData = []
 inputFiles = []
 
 #Test to make sure we've got enough arguments
-if len(sys.argv) != 3:
+if len(sys.argv) != 4:
 	print "Incorrect Number of Arguments."
 	print usageString
 	exit(0)
@@ -38,6 +38,12 @@ if (os.path.isdir(sys.argv[2]) != 1):
 	print "Argument for Database Compilation Location must be a directory."
 	print usageString
 	exit(0)
+	
+#Check that albumArt output path is directory
+if (os.path.isdir(sys.argv[3] != 1):
+	print "Argument for Album Art Directory must be a directory."
+	print usageString
+	exit(0)
 
 #Functionality to add -- get output file and all input files from the command line
 for file in os.listdir(sys.argv[1]):
@@ -47,7 +53,7 @@ for file in os.listdir(sys.argv[1]):
 	inputFiles.append(file)
 
 #Begin opening the input files.  For now, just the first file.
-with open (sys.argv[1] + inputFiles[0],'r') as urlFile:
+with open (sys.argv[1] + os.sep + inputFiles[0],'r') as urlFile:
 	for line in urlFile:
 		entry = []
 		#Get the raw HTML of the album's website
@@ -69,9 +75,14 @@ with open (sys.argv[1] + inputFiles[0],'r') as urlFile:
 			
 			#Useful bit of functionality.  Check to see if image already exists in our database.  If
 			#not, download image.
-			fnStart = albumArtLink.rfind("\\")
-			print albumArtLink[:fnStart]
-			urllib.urlretrieve(albumArtLink, sys.argv[1] + albumArtLink[:fnStart])
+			
+			#Choose the filename based on Bandcamp's own filename system.
+			fnStart = albumArtLink.rfind("\/")
+			print albumArtLink[fnStart+1:]
+			albumArtFileName = "albumArt" + os.sep + albumArtLink[fnStart+1:]
+			if (os.path.isfile(sys.argv[3] + albumArtFileName) != 1):
+				print "Didn't find the file, better save it."
+				urllib.urlretrieve(albumArtLink, sys.argv[3] + albumArtFileName)
 
 			#Split up the full description into title, artist, and release date
 			descPortions = fullDesc.split(",")
@@ -80,7 +91,7 @@ with open (sys.argv[1] + inputFiles[0],'r') as urlFile:
 			releaseDate =  descPortions[1].split("released ")[1]
 
 			#Finally, build the addition for the ChipChart Array Element
-			albumArtOut = "<a href='" + albumURL + "'><img title='" + title + "' src='" + albumArtLink + "'></a>"
+			albumArtOut = "<a href='" + albumURL + "'><img title='" + title + "' src='." + os.sep + albumArtFileName + "'></a>"
 		
 			entry.append(albumArtOut)
 			entry.append(artist)
