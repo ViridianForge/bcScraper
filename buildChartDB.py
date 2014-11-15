@@ -51,7 +51,7 @@ if (os.path.isdir(sys.argv[1] + os.sep + "images" + os.sep + "AlbumArt") != 1):
 	exit(0)
 
 #Functionality to add -- get output file and all input files from the command line
-for file in os.listdir(sys.argv[1] + os.sep + "Database"):
+for file in os.listdir(sys.argv[1] + os.sep + "Database" + os.sep + "Unprocessed"):
 	#Yeah, this is bad design VF.  Its a stem to eventually expand into identification of our
 	#different database sources to farm out to the appropriate methods.
 	print file
@@ -60,7 +60,7 @@ for file in os.listdir(sys.argv[1] + os.sep + "Database"):
 		inputFiles.append(file)
 
 #Begin opening the input files.  For now, just the first file.
-with open (sys.argv[1] + os.sep + "Database" + os.sep + inputFiles[0],'r') as urlFile:
+with open (sys.argv[1] + os.sep + "Database" + os.sep + "Unprocessed" + os.sep + inputFiles[0],'r') as urlFile:
 	for line in urlFile:
 		entry = []
 		#Get the raw HTML of the album's website
@@ -89,23 +89,21 @@ with open (sys.argv[1] + os.sep + "Database" + os.sep + inputFiles[0],'r') as ur
 			print albumArtLink[fnStart+1:]
 			albumArtFileName = os.sep + "images" + os.sep + "AlbumArt" + os.sep + albumArtLink[fnStart+1:]
 			if (os.path.isfile(sys.argv[1] + albumArtFileName) != 1):
-				print "Didn't find the file, better save it."
-				print sys.argv[1] + albumArtFileName
 				urllib.urlretrieve(albumArtLink, sys.argv[1] + albumArtFileName)
 
-			#Split up the full description into title, artist, and release date
-			descPortions = fullDesc.split(",")
-			title =  descPortions[0].split(" by ")[0]
-			artist = descPortions[0].split(" by ")[1]
-			releaseDate =  descPortions[1].split("released ")[1]
+				#Split up the full description into title, artist, and release date
+				descPortions = fullDesc.split(",")
+				title =  descPortions[0].split(" by ")[0]
+				artist = descPortions[0].split(" by ")[1]
+				releaseDate =  descPortions[1].split("released ")[1]
 
-			#Finally, build the addition for the ChipChart Array Element
-			albumArtOut = "<a href='" + albumURL + "'><img title='" + title + "' src='." + os.sep + albumArtFileName + "'></a>"
+				#Finally, build the addition for the ChipChart Array Element
+				albumArtOut = "<a href='" + albumURL + "'><img title='" + title + "' src='./images/AlbumArt/" + albumArtLink[fnStart+1:] + "'></a>"
 		
-			entry.append(albumArtOut)
-			entry.append(artist)
-			entry.append(releaseDate)
-			outData.append(entry)
+				entry.append(albumArtOut)
+				entry.append(artist)
+				entry.append(releaseDate)
+				outData.append(entry)
 		except:
 			print "Some invalid data at:"
 			print albumURL
@@ -116,5 +114,5 @@ outJSON = dict();
 outJSON["chartData"] = outData
 
 #Save and overwrite the previous .js array object
-with open(sys.argv[1] +os.sep + "Database" + os.sep + "chartList.json",'w') as outFile:
+with open(sys.argv[1] +os.sep + "Database" + os.sep + "Processed" + os.sep + "chartList.json",'w') as outFile:
 	json.dump(outJSON, outFile)
