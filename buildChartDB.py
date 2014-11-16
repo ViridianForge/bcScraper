@@ -17,6 +17,9 @@ import sys
 import urllib
 import os
 import datetime
+from datetime import date
+import calendar
+import re
 
 usageString = "Usage: buildChartDB.py <directory containing data>"
 
@@ -69,7 +72,7 @@ with open (sys.argv[1] + os.sep + "Database" + os.sep + "Unprocessed" + os.sep +
 		entry = []
 		#Get the raw HTML of the album's website
 		albumURL = line.rstrip()
-		print "Querying " + albumURL
+		#print "Querying " + albumURL
 		try:
 			page = requests.get(albumURL)
 			tree = html.fromstring(page.text)
@@ -89,8 +92,8 @@ with open (sys.argv[1] + os.sep + "Database" + os.sep + "Unprocessed" + os.sep +
 			
 			#Choose the filename based on Bandcamp's own filename system.
 			fnStart = albumArtLink.rfind("/")
-			print fnStart
-			print albumArtLink[fnStart+1:]
+			#print fnStart
+			#print albumArtLink[fnStart+1:]
 			albumArtFileName = os.sep + "images" + os.sep + "AlbumArt" + os.sep + albumArtLink[fnStart+1:]
 			if (os.path.isfile(sys.argv[1] + albumArtFileName) != 1):
 				urllib.urlretrieve(albumArtLink, sys.argv[1] + albumArtFileName)
@@ -105,10 +108,17 @@ with open (sys.argv[1] + os.sep + "Database" + os.sep + "Unprocessed" + os.sep +
 				#As such, we'll split up the string, convert Bandcamp's month string into digits,
 				#and rebuild the string.
 				
-				releaseDateChunks = releaseDate.split(" ")
-				dReleaseDate = datetime.date(releaseDateChunks[0], revMonthD[releaseDateChunks[1]], releaseDateChunks[2])
+				#print releaseDate
+				releaseDateChunks = re.split(u'\s|\u200b',releaseDate)
+				#print releaseDateChunks
+				#print type(int(releaseDateChunks[0]))
+				#print type(revMonthD[releaseDateChunks[1]])
+				#print type(int(releaseDateChunks[2]))
+				dReleaseDate = date(int(releaseDateChunks[2]), revMonthD[releaseDateChunks[1]], int(releaseDateChunks[0]))
+				#print dReleaseDate
 				
 				modReleaseDate = dReleaseDate.strftime("%d/%m/%y")
+				#print modReleaseDate
 
 				#Finally, build the addition for the ChipChart Array Element
 				albumArtOut = "<a href='" + albumURL + "'><img title='" + title + "' src='./images/AlbumArt/" + albumArtLink[fnStart+1:] + "'></a>"
