@@ -16,8 +16,12 @@ import json
 import sys
 import urllib
 import os
+import datetime
 
 usageString = "Usage: buildChartDB.py <directory containing data>"
+
+#Dictionary for Date Lookups for the Bandcamp Scans
+revMonthD = {v: k for k,v in enumerate(calendar.month_name)}
 
 #The final output file being prepared
 outData = []
@@ -96,13 +100,22 @@ with open (sys.argv[1] + os.sep + "Database" + os.sep + "Unprocessed" + os.sep +
 				title =  descPortions[0].split(" by ")[0]
 				artist = descPortions[0].split(" by ")[1]
 				releaseDate =  descPortions[1].split("released ")[1]
+				
+				#Datatables uses javascript's built-in Date.parse() for parsing dates for sorting.
+				#As such, we'll split up the string, convert Bandcamp's month string into digits,
+				#and rebuild the string.
+				
+				releaseDateChunks = releaseDate.split(" ")
+				dReleaseDate = datetime.date(releaseDateChunks[0], revMonthD[releaseDateChunks[1]], releaseDateChunks[2])
+				
+				modReleaseDate = dReleaseDate.strftime("%d/%m/%y")
 
 				#Finally, build the addition for the ChipChart Array Element
 				albumArtOut = "<a href='" + albumURL + "'><img title='" + title + "' src='./images/AlbumArt/" + albumArtLink[fnStart+1:] + "'></a>"
 		
 				entry.append(albumArtOut)
 				entry.append(artist)
-				entry.append(releaseDate)
+				entry.append(modReleaseDate)
 				outData.append(entry)
 		except:
 			print "Some invalid data at:"
