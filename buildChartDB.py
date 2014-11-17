@@ -117,7 +117,7 @@ with open (sys.argv[1] + os.sep + "Database" + os.sep + "Unprocessed" + os.sep +
 				dReleaseDate = date(int(releaseDateChunks[2]), revMonthD[releaseDateChunks[1]], int(releaseDateChunks[0]))
 				#print dReleaseDate
 				
-				modReleaseDate = dReleaseDate.strftime("%d/%m/%y")
+				modReleaseDate = dReleaseDate.strftime("%m/%d/%y")
 				#print modReleaseDate
 
 				#Finally, build the addition for the ChipChart Array Element
